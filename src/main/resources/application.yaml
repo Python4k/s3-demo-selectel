@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: s3-demo-selectel
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+cloud:
+  aws:
+    credentials:
+      accessKey:  your_access_key
+      secretKey: your_secret_key
+    region:
+      static: your_region
+      endpoint: your_endpoint
+    s3:
+      bucket: bucket_name
+
+ServicePointManager:
+  DefaultConnectionLimit: 25
