@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -35,17 +36,17 @@ public class AwsController {
         }
     }
 
-    @GetMapping("/{bucketName}/download/{fileName}")
+    @GetMapping("/{bucketName}/{fileName}")
     @SneakyThrows
-    public ResponseEntity<?> downloadFile(@PathVariable String bucketName, @PathVariable String fileName) {
-        val body = awsService.downloadFile(bucketName, fileName);
+    public ResponseEntity<?> downloadFile(@PathVariable String bucketName, @PathVariable String fileName, @RequestParam(required = false) String path) {
+        val body = awsService.downloadFile(bucketName, path +"/"+ fileName);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentType(FileType.fromFilename(fileName))
                 .body(body.toByteArray());
     }
 
-    @PostMapping("/{bucketName}/upload")
+    @PostMapping("/{bucketName}")
     @SneakyThrows(IOException.class)
     public ResponseEntity<?> uploadFile(@PathVariable("bucketName") String bucketName, @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
