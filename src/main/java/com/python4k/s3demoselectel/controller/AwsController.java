@@ -39,7 +39,10 @@ public class AwsController {
     @GetMapping("/{bucketName}/{fileName}")
     @SneakyThrows
     public ResponseEntity<?> downloadFile(@PathVariable String bucketName, @PathVariable String fileName, @RequestParam(required = false) String path) {
-        val body = awsService.downloadFile(bucketName, path +"/"+ fileName);
+        if (path != null) {
+            path += "/";
+        }
+        val body = awsService.downloadFile(bucketName, path + fileName);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .contentType(FileType.fromFilename(fileName))
@@ -48,11 +51,14 @@ public class AwsController {
 
     @PostMapping("/{bucketName}")
     @SneakyThrows(IOException.class)
-    public ResponseEntity<?> uploadFile(@PathVariable("bucketName") String bucketName, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadFile(@PathVariable("bucketName") String bucketName, @RequestParam("file") MultipartFile file, @RequestParam(required = false) String path) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty");
         }
-        String filename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        if (path != null) {
+            path += "/";
+        }
+        String filename = path +  StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         String contentType = file.getContentType();
         long fileSize = file.getSize();
         InputStream inputStream = file.getInputStream();
